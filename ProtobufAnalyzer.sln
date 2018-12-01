@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtobufAnalyzer.Core", "ProtobufAnalyzer.Core\ProtobufAnalyzer.Core.csproj", "{57546A8B-8A33-4085-92F7-6CB237B3B5EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtobufAnalyzer.Core", "ProtobufAnalyzer.Core\ProtobufAnalyzer.Core.csproj", "{57546A8B-8A33-4085-92F7-6CB237B3B5EE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "デバッグ用", "デバッグ用", "{739E8EB1-419D-4BFC-BBBB-56746960488E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtobufAnalyzer.DebugConsole", "ProtobufAnalyzer.DebugConsole\ProtobufAnalyzer.DebugConsole.csproj", "{2ABF9E36-7F62-4F0D-AFFE-B5EC5E55FBC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{57546A8B-8A33-4085-92F7-6CB237B3B5EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57546A8B-8A33-4085-92F7-6CB237B3B5EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57546A8B-8A33-4085-92F7-6CB237B3B5EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ABF9E36-7F62-4F0D-AFFE-B5EC5E55FBC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ABF9E36-7F62-4F0D-AFFE-B5EC5E55FBC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ABF9E36-7F62-4F0D-AFFE-B5EC5E55FBC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ABF9E36-7F62-4F0D-AFFE-B5EC5E55FBC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2ABF9E36-7F62-4F0D-AFFE-B5EC5E55FBC1} = {739E8EB1-419D-4BFC-BBBB-56746960488E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B5AC5432-C17A-4A25-9429-56AD5BFACBAA}
