@@ -25,11 +25,16 @@ namespace ProtobufAnalyzer.DebugConsole
 
                 var ret = await scriptExecutor.RequestResponseAsync(MakeRequest(), input);
 
-                ret.IfSome(x =>
-                {
-                    Console.WriteLine(x.requestProto.ToJsonString());
-                    Console.WriteLine(x.responseProto.ToJsonString());
-                });
+                ret.Match(
+                    Right: x =>
+                     {
+                         Console.WriteLine(x.requestProto.ToJsonString());
+                         Console.WriteLine(x.responseProto.ToJsonString());
+                     },
+                    Left: x =>
+                    {
+                        Console.WriteLine(x);
+                    });
             }
         }
 

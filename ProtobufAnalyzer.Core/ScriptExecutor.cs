@@ -28,7 +28,7 @@ namespace ProtobufAnalyzer.Core
         /// <param name="requestBytes">要求データ（Protobufの形式）</param>
         /// <param name="scriptPath">実行処理をする CSharpScript のパス</param>
         /// <returns></returns>
-        public async Task<Option<(IProtobufObject requestProto, IProtobufObject responseProto)>> RequestResponseAsync(IEnumerable<byte> requestBytes, string scriptPath)
+        public async Task<Either<string, (IProtobufObject requestProto, IProtobufObject responseProto)>> RequestResponseAsync(IEnumerable<byte> requestBytes, string scriptPath)
         {
             var scriptOptions = GetScriptOptions(scriptPath);
 
@@ -50,7 +50,7 @@ namespace ProtobufAnalyzer.Core
         /// </summary>
         /// <param name="scriptPath">実行処理をする CSharpScript のパス</param>
         /// <returns></returns>
-        public async Task<Option<IProtobufObject>> NotificationAsync(string scriptPath)
+        public async Task<Either<string, IProtobufObject>> NotificationAsync(string scriptPath)
         {
             var scriptOptions = GetScriptOptions(scriptPath);
 
@@ -81,7 +81,7 @@ namespace ProtobufAnalyzer.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="asyncAction"></param>
         /// <returns></returns>
-        async Task<Option<T>> RunAsync<T>(Func<Task<T>> asyncAction)
+        async Task<Either<string, T>> RunAsync<T>(Func<Task<T>> asyncAction)
         {
             try
             {
@@ -89,17 +89,11 @@ namespace ProtobufAnalyzer.Core
             }
             catch (CompilationErrorException ex)
             {
-                Console.WriteLine("[Compile Error]");
-                Console.WriteLine(ex.Message);
-
-                return None;
+                return $"[Compile Error]{Environment.NewLine}{ex.Message}";
             }
             catch (FileNotFoundException ex)
             {
-                Console.WriteLine("[Can't Find File]");
-                Console.WriteLine(ex.Message);
-
-                return None;
+                return $"[Can't Find File]{Environment.NewLine}{ex.Message}";
             }
         }
     }
