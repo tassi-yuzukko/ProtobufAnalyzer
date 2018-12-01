@@ -22,27 +22,81 @@ namespace ProtobufAnalyzer.Core
                 .WithBaseDirectory(Environment.CurrentDirectory);
         }
 
+        /// <summary>
+        /// 要求応答の処理
+        /// </summary>
+        /// <param name="requestBytes">要求データ（Protobufの形式）</param>
+        /// <param name="scriptPath">実行処理をする CSharpScript のパス</param>
+        /// <returns></returns>
         public async Task<Option<(IProtobufObject requestProto, IProtobufObject responseProto)>> RequestResponseAsync(IEnumerable<byte> requestBytes, string scriptPath)
         {
-            var scriptOptions = ScriptOptions.Default
-                .WithFilePath(Path.GetFullPath(scriptPath))
-                .WithMetadataResolver(scriptMetadataResolver)
-                .WithReferences(Assembly.GetEntryAssembly());
+            var scriptOptions = GetScriptOptions(scriptPath);
 
-            try
+            return await RunAsync(async () =>
             {
-                var arg = new ForArgs(requestBytes);
+                var arg = new ForRequestResponseArgs(requestBytes);
                 var script = CSharpScript.Create<(IProtobufObject requestProto, IProtobufObject responseProto)>(
                     File.ReadAllText(scriptPath),
                     options: scriptOptions,
-                    globalsType: typeof(ForArgs));
+                    globalsType: typeof(ForRequestResponseArgs));
                 var ret = await script.RunAsync(globals: arg);
 
                 return ret.ReturnValue;
+            });
+        }
+
+        /// <summary>
+        /// 通知の処理
+        /// </summary>
+        /// <param name="scriptPath">実行処理をする CSharpScript のパス</param>
+        /// <returns></returns>
+        public async Task<Option<IProtobufObject>> NotificationAsync(string scriptPath)
+        {
+            var scriptOptions = GetScriptOptions(scriptPath);
+
+            return await RunAsync(async () =>
+            {
+                var arg = new ForNotificationArgs();
+                var script = CSharpScript.Create<IProtobufObject>(
+                    File.ReadAllText(scriptPath),
+                    options: scriptOptions,
+                    globalsType: typeof(ForNotificationArgs));
+                var ret = await script.RunAsync(globals: arg);
+
+                return ret.ReturnValue;
+            });
+        }
+
+        ScriptOptions GetScriptOptions(string scriptPath)
+        {
+            return ScriptOptions.Default
+                .WithFilePath(Path.GetFullPath(scriptPath))
+                .WithMetadataResolver(scriptMetadataResolver)
+                .WithReferences(Assembly.GetEntryAssembly());
+        }
+
+        /// <summary>
+        /// try-catch の共通処理
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="asyncAction"></param>
+        /// <returns></returns>
+        async Task<Option<T>> RunAsync<T>(Func<Task<T>> asyncAction)
+        {
+            try
+            {
+                return await asyncAction();
             }
             catch (CompilationErrorException ex)
             {
                 Console.WriteLine("[Compile Error]");
+                Console.WriteLine(ex.Message);
+
+                return None;
+            }
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine("[Can't Find File]");
                 Console.WriteLine(ex.Message);
 
                 return None;
@@ -55,16 +109,20 @@ namespace ProtobufAnalyzer.Core
     /// レガシーな感じするけどラッパークラス作る。
     /// 本来はこういうときにこそタプルを使いところだけど。
     /// </summary>
-    public class ForArgs
+    public class ForRequestResponseArgs
     {
-        public ForArgs(IEnumerable<byte> bytes)
+        public ForRequestResponseArgs(IEnumerable<byte> bytes)
         {
             RequestBytes = bytes;
-            ProtobufObjectFactory = new ProtobufObjectFactory();
         }
 
         public IEnumerable<byte> RequestBytes { get; }
 
-        public ProtobufObjectFactory ProtobufObjectFactory { get; }
+        public ProtobufObjectFactory ProtobufObjectFactory { get; } = new ProtobufObjectFactory();
+    }
+
+    public class ForNotificationArgs
+    {
+        public ProtobufObjectFactory ProtobufObjectFactory { get; } = new ProtobufObjectFactory();
     }
 }

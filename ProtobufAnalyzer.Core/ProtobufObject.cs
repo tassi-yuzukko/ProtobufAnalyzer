@@ -12,6 +12,7 @@ namespace ProtobufAnalyzer.Core
         where T : IMessage<T>, new()
     {
         readonly T obj;
+        readonly MessageParser<T> parser = new MessageParser<T>(() => new T());
         readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings { MissingMemberHandling = MissingMemberHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented };
 
         public ProtobufObject(T obj)
@@ -26,7 +27,10 @@ namespace ProtobufAnalyzer.Core
 
         public string ToJsonString()
         {
-            return JsonConvert.SerializeObject(obj, jsonSetting);
+            // progobuf の json パーサーを使わないと、enum がちゃんと変換されない（Json.net 使うと数字になっちゃう）
+            var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
+            var json = jsonFormatter.Format(obj);
+            return ToReadable(json);
         }
 
         public IEnumerable<byte> Serialize()
@@ -45,8 +49,13 @@ namespace ProtobufAnalyzer.Core
 
         T Deserialize(IEnumerable<byte> bytes)
         {
-            var parser = new MessageParser<T>(() => new T());
             return parser.ParseFrom(new MemoryStream(bytes.ToArray()));
+        }
+
+        string ToReadable(string json)
+        {
+            var obj = JsonConvert.DeserializeObject(json);
+            return JsonConvert.SerializeObject(obj, jsonSetting);
         }
     }
 }
