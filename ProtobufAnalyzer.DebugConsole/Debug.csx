@@ -5,13 +5,15 @@
 using System;
 using ProtobufAnalyzer.DebugConsole;
 
-var person = new Person
-{
-    Name = "tashima",
-    Id = 2,
-    Emails = "aaaaa.com",
-};
+var requestProtobuf = ProtobufObjectFactory.Create<Request>(RequestBytes);
 
-var x = ProtobufObjectFactory.Create<Person>(person);
+var request = requestProtobuf.GetDeepClonedObject();
+var response = new Response();
 
-return (x, x);
+response.Result = request.RequestNumber > 10;
+response.Code = Response.Types.Code.GoodBye;
+response.Message = "This is Response :" + request.Message;
+
+var responseProtobuf = ProtobufObjectFactory.Create<Response>(response);
+
+return (requestProtobuf, responseProtobuf);

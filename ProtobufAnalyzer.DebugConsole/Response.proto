@@ -1,0 +1,16 @@
+﻿syntax="proto3";
+option csharp_namespace = "ProtobufAnalyzer.DebugConsole";
+
+message Response {
+  bool result = 10;
+  
+  enum Code
+  {
+    Hello = 0;
+    GoodBye = 1;
+  }
+  
+  Code code = 20;
+  
+  string message = 30;
+}

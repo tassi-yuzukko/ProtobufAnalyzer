@@ -1,8 +1,7 @@
 ﻿syntax="proto3";
 option csharp_namespace = "ProtobufAnalyzer.DebugConsole";
 
-message Person {
-  string name = 1;
-  int32 id = 2;
-  string emails = 3;
+message Request {
+  int32 requestNumber = 10;
+  string message = 20;
 }

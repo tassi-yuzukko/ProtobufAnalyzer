@@ -1,5 +1,6 @@
 ﻿using ProtobufAnalyzer.Core;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,7 +23,7 @@ namespace ProtobufAnalyzer.DebugConsole
 
                 if (input == "quit") break;
 
-                var ret = await scriptExecutor.RequestResponseAsync(Enumerable.Empty<byte>(), input);
+                var ret = await scriptExecutor.RequestResponseAsync(MakeRequest(), input);
 
                 ret.IfSome(x =>
                 {
@@ -30,6 +31,19 @@ namespace ProtobufAnalyzer.DebugConsole
                     Console.WriteLine(x.responseProto.ToJsonString());
                 });
             }
+        }
+
+        static IEnumerable<byte> MakeRequest()
+        {
+            var request = new Request
+            {
+                RequestNumber = 99,
+                Message = "Hello World !",
+            };
+
+            var protobuf = new ProtobufObject<Request>(request);
+
+            return protobuf.Serialize();
         }
     }
 }
