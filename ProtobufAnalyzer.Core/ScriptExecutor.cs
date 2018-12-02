@@ -12,7 +12,7 @@ using static LanguageExt.Prelude;
 
 namespace ProtobufAnalyzer.Core
 {
-    public class ScriptExecutor
+    class ScriptExecutor
     {
         readonly ScriptMetadataResolver scriptMetadataResolver;
 
@@ -102,6 +102,7 @@ namespace ProtobufAnalyzer.Core
     /// CSharpScript に渡す引数はクラスとして定義しなければならない決まりになっているので、
     /// レガシーな感じするけどラッパークラス作る。
     /// 本来はこういうときにこそタプルを使いところだけど。
+    /// また、このクラスは CSharpScript から参照できる必要があるため、public にしないといけない
     /// </summary>
     public class ForRequestResponseArgs
     {

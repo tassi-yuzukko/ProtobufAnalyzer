@@ -1,6 +1,9 @@
-﻿using ProtobufAnalyzer.Core;
+﻿using LanguageExt;
+using ProtobufAnalyzer.Core;
+using ProtobufAnalyzer.Core.KeyScriptMaps;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,29 +15,57 @@ namespace ProtobufAnalyzer.DebugConsole
         {
             Console.WriteLine(Environment.CurrentDirectory);
 
-            var scriptExecutor = new ScriptExecutor();
+            var jsonData = ReadJson("scriptPaths.json");
 
-            while (true)
-            {
-                Console.WriteLine("Enter script path. If you want to quit this app, press 'quit'.");
-                Console.Write("Enter here : ");
+            await jsonData.ToAsync().MatchAsync(
+                Right: async json =>
+                {
+                    var keyScriptJsonMap = new KeyScriptJsonMap(json);
+                    var requestResponseExecutor = new RequestResponseExecutor(keyScriptJsonMap);
 
-                var input = Console.ReadLine();
-
-                if (input == "quit") break;
-
-                var ret = await scriptExecutor.RequestResponseAsync(MakeRequest(), input);
-
-                ret.Match(
-                    Right: x =>
-                     {
-                         Console.WriteLine(x.requestProto.ToJsonString());
-                         Console.WriteLine(x.responseProto.ToJsonString());
-                     },
-                    Left: x =>
+                    while (true)
                     {
-                        Console.WriteLine(x);
-                    });
+                        Console.WriteLine("Enter rquest topic. If you want to quit this app, press 'quit'.");
+                        Console.Write("Enter here : ");
+
+                        var input = Console.ReadLine();
+
+                        if (input == "quit") break;
+
+                        var ret = await requestResponseExecutor.ExecAsync(input, MakeRequest());
+
+                        ret.Match(
+                            Right: x =>
+                            {
+                                Console.WriteLine(x.requestProto.ToJsonString());
+                                Console.WriteLine(x.responseProto.ToJsonString());
+                            },
+                            Left: x =>
+                            {
+                                Console.WriteLine(x);
+                            });
+                    }
+                },
+                LeftAsync: ex =>
+                {
+                    Console.WriteLine(ex);
+                    Console.ReadKey();
+                    return Task.CompletedTask;
+                });
+        }
+
+        static Either<Exception, string> ReadJson(string path)
+        {
+            try
+            {
+                using (var stream = File.OpenText(path))
+                {
+                    return stream.ReadToEnd();
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex;
             }
         }
 
