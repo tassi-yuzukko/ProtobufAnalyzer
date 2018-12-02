@@ -21,7 +21,7 @@ namespace ProtobufAnalyzer.DebugConsole
                 Right: async json =>
                 {
                     var keyScriptJsonMap = new KeyScriptJsonMap(json);
-                    var requestResponseExecutor = new RequestResponseExecutor(keyScriptJsonMap);
+                    var responseMaker = new ResponseMaker(keyScriptJsonMap);
 
                     while (true)
                     {
@@ -32,7 +32,7 @@ namespace ProtobufAnalyzer.DebugConsole
 
                         if (input == "quit") break;
 
-                        var ret = await requestResponseExecutor.ExecAsync(input, MakeRequest());
+                        var ret = await responseMaker.MakeResponseAsync(input, MakeRequest());
 
                         ret.Match(
                             Right: x =>
@@ -58,10 +58,7 @@ namespace ProtobufAnalyzer.DebugConsole
         {
             try
             {
-                using (var stream = File.OpenText(path))
-                {
-                    return stream.ReadToEnd();
-                }
+                return File.ReadAllText(path);
             }
             catch (Exception ex)
             {

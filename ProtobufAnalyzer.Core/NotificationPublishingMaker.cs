@@ -7,25 +7,31 @@ using System.Threading.Tasks;
 namespace ProtobufAnalyzer.Core
 {
     /// <summary>
-    /// 要求応答を実行する人
+    /// 通知送信のデータを作る人
     /// </summary>
-    public class RequestResponseExecutor
+    public class NotificationPublishingMaker
     {
         readonly IKeyScriptMap keyScriptMap;
         readonly ScriptExecutor scriptExecutor = new ScriptExecutor();
 
-        public RequestResponseExecutor(IKeyScriptMap keyScriptMap)
+        public NotificationPublishingMaker(IKeyScriptMap keyScriptMap)
         {
             this.keyScriptMap = keyScriptMap;
         }
 
-        public async Task<Either<string, (IProtobufObject requestProto, IProtobufObject responseProto)>> ExecAsync(string key, IEnumerable<byte> data)
+        public async Task<Either<string, IProtobufObject>> MakeNotificationPublishingAsync(string key)
         {
             var scriptPath = keyScriptMap.GetScriptPathFrom(key);
+            var arg = new ForPublishNotificationArgs();
 
             return await scriptPath.ToAsync().MatchAsync(
-                Some: x => scriptExecutor.RequestResponseAsync(data, x),
+                Some: x => scriptExecutor.RunScriptAsync<IProtobufObject>(x, arg),
                 None: () => $"[Can't Find Key] : {key}");
         }
+    }
+
+    public class ForPublishNotificationArgs
+    {
+        public ProtobufObjectFactory ProtobufObjectFactory { get; } = new ProtobufObjectFactory();
     }
 }
